@@ -32,7 +32,7 @@ for f in $(find $directory -type f -name "*.fa" -o -name "*.fasta"); do
 header="==="
 
 #### filename
-header=$header" "$f
+header=$header" "$(basename $f) # We used basename command in PGB that's why I know it!
 
 #### is it a symlink? 
 if [[ -h $f ]]; then header=$header" ""symlink"; fi
@@ -43,6 +43,11 @@ header=$header" "$(grep -c ">" < $f)
 #### sequence length without gaps
 n=0
 header=$header" "$(awk '!/>/{gsub(/-/, "", $0); n=n+length($0)}END{print n}' $f)
+
+#### amino acid sequence or nucleotide sequence?
+if [[ -z $(awk '!/>/{gsub(/-/, "", $0); print $0}' $f | grep -iv [A,C,T,G] ) ]]; then header=$header" aminoacid_sequence"; else header=$header" nucleotide_sequence"; fi
+# IMPROVE!
+
 
 #### Echo the header before the content.
 echo $header
@@ -59,6 +64,7 @@ elif [[ $((2 * $N)) -le $(wc -l < $f) ]];
 then head -n $N $f;
 echo ...;
 tail -n $N $f;
+echo ; # This echo is just to make 
 fi
 
 done
