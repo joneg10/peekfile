@@ -31,16 +31,21 @@ header="==="
 header=$header" "$f
 
 #### is it a symlink? 
-if [[ -h $f ]]; then header=$header" ""symlink"; else header=$header" ""–"; fi
+if [[ -h $f ]]; then header=$header" ""symlink"; fi
 
 #### sequences
-header=$header" "$(grep -c ">" < $f) # what if it's not fasta?¿
+header=$header" "$(grep -c ">" < $f)
 
 #### sequence length without gaps
 
 
-### Content: If fine <= 2N; full cont, if not N head, ... and N tail. If 0 skip.
-
+#### Echo the header before the content.
 echo $header
+
+### Content: If fine <= 2N; full cont, if not N head, ... and N tail. If 0 skip.
+if [[ $N -eq 0 ]]; then continue;
+elif [[ $((2 * $N)) -ge $LENGTH ]]; then cat $SECUENCIA;
+elif [[ $((2 * $N)) -le $LENGTH ]]; then head -n $N $SECUENCIA; echo ...; tail -n $N $SECUENCIA; fi
+
 done
 
