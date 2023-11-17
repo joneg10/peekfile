@@ -44,9 +44,12 @@ header=$header" "$(grep -c ">" < $f)
 n=0
 header=$header" "$(awk '!/>/{gsub(/-/, "", $0); n=n+length($0)}END{print n}' $f)
 
+
 #### amino acid sequence or nucleotide sequence?
-if [[ -z $(awk '!/>/{gsub(/-/, "", $0); print $0}' $f | grep -iv [A,C,T,G] ) ]]; then header=$header" aminoacid_sequence"; else header=$header" nucleotide_sequence"; fi
-# IMPROVE!
+if [[ $(awk '!/>/{gsub(/-/, "", $0); print $0}' $f | grep -vi [A,C,T,G]) ]]; then header=$header" aminoacid_sequence"; else header=$header" nucleotide_sequence"; fi
+
+
+# IMPROVE! El problema es que coge toda la linea como palabra, de modo que si hacer grep v a, como la linea tiene una a, no la coge aunq tenga otras letras.
 
 
 #### Echo the header before the content.
