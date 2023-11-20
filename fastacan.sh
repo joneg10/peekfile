@@ -12,14 +12,19 @@ if [[ -z $N ]]; then N=0;
 fi
 
 ## How many files.
-if [[ $(find $directory -type f -name "*.fa" -o -name "*.fasta"  | wc -l ) -eq 0 ]]; then echo The directory has no fasta files.;
-elif [[ $(find $directory -type f -name "*.fa" -o -name "*.fasta" | wc -l) -eq 1 ]]; then echo The directory has 1 fasta file.;
-else echo The directory has $(find $directory -type f -name "*.fa" -o -name "*.fasta" | wc -l) fasta files.; fi
+if [[ $(find $directory -type f -name "*.fa" -o -type f -name "*.fasta"  | wc -l ) -eq 0 ]]; then echo The directory has no fasta files.;
+elif [[ $(find $directory -type f -name "*.fa" -o -type f -name "*.fasta" | wc -l) -eq 1 ]]; then echo The directory has 1 fasta file.;
+else echo The directory has $(find $directory -type f -name "*.fa" -o -type f -name "*.fasta" | wc -l) fasta files.; fi
 
+## How many unique fasta IDs.
 fastaID=0
-fastaID=$(($fastaID+$(awk -F' ' '/>/{print $1}' $directory/* | sort | uniq | wc -l)))
+for file in $(find $directory -type f -name "*.fa" -o -name "*.fasta"); do
+fastaID=$(($fastaID+$(awk -F' ' '/>/{print $1}' $file | sort | uniq | wc -l))2>fastacan.err)
+done
+
 
 echo There are $fastaID unique fasta IDs.
+
 
 ## Files:
 ### Header: filename, symlink?, sequences, total seq length (no gaps), extra: aa/nt seq?
@@ -27,18 +32,21 @@ echo There are $fastaID unique fasta IDs.
 
 for f in $(find $directory -type f -name "*.fa" -o -name "*.fasta"); do
 
-## How many unique fasta IDs.
+if [[ ! -r $f ]]; then echo === $(basename $f) not readable file! && continue; fi
+ # We used basename command in PGB that's why I know it!
+
+
 #### start of the header
 header="==="
 
 #### filename
-header=$header" "$(basename $f) # We used basename command in PGB that's why I know it!
+header=$header" "$(basename $f)
 
 #### is it a symlink? 
 if [[ -h $f ]]; then header=$header" ""symlink"; fi
 
 #### sequences
-header=$header" "$(grep -c ">" < $f)
+header=$header" "$(grep -c ">" < $f)"seqs"
 
 #### sequence length without gaps
 n=0
@@ -46,10 +54,7 @@ header=$header" "$(awk '!/>/{gsub(/-/, "", $0); n=n+length($0)}END{print n}' $f)
 
 
 #### amino acid sequence or nucleotide sequence?
-if [[ $(awk '!/>/{gsub(/-/, "", $0); print $0}' $f | grep -vi [A,C,T,G]) ]]; then header=$header" aminoacid_sequence"; else header=$header" nucleotide_sequence"; fi
-
-
-# IMPROVE! El problema es que coge toda la linea como palabra, de modo que si hacer grep v a, como la linea tiene una a, no la coge aunq tenga otras letras.
+if [[ $(awk '!/>/{gsub(/-/, "", $0); print $0}' $f | grep -vi ^[A,C,T,G]) ]]; then header=$header" aminoacid_sequence"; else header=$header" nucleotide_sequence"; fi
 
 
 #### Echo the header before the content.
@@ -67,7 +72,7 @@ elif [[ $((2 * $N)) -le $(wc -l < $f) ]];
 then head -n $N $f;
 echo ...;
 tail -n $N $f;
-echo ; # This echo is just to make 
+echo ; # This echo is just to make a line jump between different files.
 fi
 
 done
