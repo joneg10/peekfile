@@ -52,8 +52,9 @@ header=$header" | Length: "$(awk '!/>/{gsub(/-/, "", $0);n=n+length($0)}END{prin
 # gsub will replace the gaps with nothing in each line except the header lines.
 # The counter (n) will sum each line's length and at the end of the iteration of the lines it will print the total.
 
-#### amino acid sequence or nucleotide sequence? If the sequence hast any character that is not a nucleotide (A, C, T, G, U – in case it's RNA –, N – indetermination) then it will be determined as an aminoacidic sequence.
+#### amino acid sequence or nucleotide sequence? If the sequence hast any character that is not a nucleotide (A, C, T, G, U – in case it's RNA –, N – indetermination) then it will be determined as an aminoacidic sequence. [^ACTGUN] will grep any character except the characters inside [].
 if [[ $(awk '!/>/{gsub(/-/, "", $0); print $0}' $f | grep -i [^ACTGUN]) ]]; then header=$header" | Aminoacid Sequence"; else header=$header" | Nucleotide Sequence"; fi
+
 
 
 #### Echo the header before the content.
