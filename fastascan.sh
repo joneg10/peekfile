@@ -45,16 +45,16 @@ header=$header$f
 if [[ -h $f ]]; then header=$header" ""Symbolic Link"; fi
 
 #### sequences: by counting how many fasta headers (start with >) there are.
-header=$header" | Sequences:"$(grep -c ">" < $f)
+header=$header" | Sequences: "$(grep -c ">" < $f)
 
 #### sequence length without gaps
 n=0 # Create a counter that will start in 0 each time we iterate in a different folder.
-header=$header" | Length:"$(awk '!/>/{gsub(/-/, "", $0);n=n+length($0)}END{print n}' $f)
+header=$header" | Length: "$(awk '!/>/{gsub(/-/, "", $0);n=n+length($0)}END{print n}' $f)
 # gsub will replace the gaps with nothing in each line except the header lines.
 # The counter (n) will sum each line's length and at the end of the iteration of the lines it will print the total.
 
 #### amino acid sequence or nucleotide sequence? If the sequence hast any character that is not a nucleotide (A, C, T, G) then it will be determined as an aminoacidic sequence.
-if [[ $(awk '!/>/{gsub(/-/, "", $0); print $0}' $f | grep -vi ^[A,C,T,G]) ]]; then header=$header" | aminoacid_sequence"; else header=$header" | nucleotide_sequence"; fi
+if [[ $(awk '!/>/{gsub(/-/, "", $0); print $0}' $f | grep -vi ^[A,C,T,G]) ]]; then header=$header" | Aminoacid Sequence"; else header=$header" | Nucleotide Sequence"; fi
 
 
 #### Echo the header before the content.
