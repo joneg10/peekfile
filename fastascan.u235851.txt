@@ -8,17 +8,17 @@ if [[ -z $directory ]]; then directory='.'; fi
 if [[ -z $N ]]; then N=0; fi
 
 ## How many files? Depending on the number of files (one, multiple or none) the sentence explaining it changes.
-if [[ $(find $directory -type f -name "*.fa" -o -type f -name "*.fasta"  | wc -l ) -eq 0 ]]; then echo The directory has no fasta files.;
+if [[ $(find $directory -type f,l -name "*.fa" -o -type f,l -name "*.fasta"  | wc -l ) -eq 0 ]]; then echo The directory has no fasta files.;
 
-elif [[ $(find $directory -type f -name "*.fa" -o -type f -name "*.fasta" | wc -l) -eq 1 ]]; then echo The directory has 1 fasta file.;
+elif [[ $(find $directory -type f,l -name "*.fa" -o -type f,l -name "*.fasta" | wc -l) -eq 1 ]]; then echo The directory has 1 fasta file.;
 
-else echo The directory has $(find $directory -type f -name "*.fa" -o -type f -name "*.fasta" | wc -l) fasta files.; fi
+else echo The directory has $(find $directory -type f,l -name "*.fa" -o -type f,l -name "*.fasta" | wc -l) fasta files.; fi
 
 ## How many unique fasta IDs.
 fastaID=0 # Define the counter of the IDs.
 
 ### Iterate in each file:
-for file in $(find $directory -type f -name "*.fa" -o -name "*.fasta"); do
+for file in $(find $directory -type f,l -name "*.fa" -o -name "*.fasta"); do
 
 ### Iterate in each line of the file: Take the ones with the ID (first word) and count each unique ID.
 fastaID=$(($fastaID+$(awk -F' ' '/>/{print $1}' $file | sort | uniq | wc -l)))
@@ -30,7 +30,7 @@ echo There are $fastaID unique fasta IDs.
 ### Header: filename, symlink?, sequences, total seq length (no gaps), extra: aa/nt seq.
 
 #### Iterate in each file of the directory.
-for f in $(find $directory -type f -name "*.fa" -o -name "*.fasta"); do
+for f in $(find $directory -type f,l -name "*.fa" -o -name "*.fasta"); do
 
 ##### We'll let the user know if a file is not readable, just in case, even if the terminal will show an error for previous steps like counting fasta IDs.
 if [[ ! -r $f ]]; then echo; echo === $f non readable file! && continue; fi
@@ -42,7 +42,7 @@ header="=== "
 header=$header$f
 
 #### is it a symlink?
-if [[ -h $f ]]; then header=$header" ""symlink"; fi
+if [[ -h $f ]]; then header=$header" ""Symbolic Link"; fi
 
 #### sequences: by counting how many fasta headers (start with >) there are.
 header=$header" | Sequences:"$(grep -c ">" < $f)
