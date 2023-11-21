@@ -18,7 +18,7 @@ else echo The directory has $(find $directory -type f,l -name "*.fa" -o -type f,
 fastaID=0 # Define the counter of the IDs.
 
 ### Iterate in each file:
-for file in $(find $directory -type f,l -name "*.fa" -o -name "*.fasta"); do
+for file in $(find $directory -type f,l -name "*.fa" -o -type f,l -name "*.fasta"); do
 
 ### Iterate in each line of the file: Take the ones with the ID (first word) and count each unique ID.
 fastaID=$(($fastaID+$(awk -F' ' '/>/{print $1}' $file | sort | uniq | wc -l)))
