@@ -19,7 +19,7 @@ else echo The directory has $(find $directory -type f -name "*.fa" -o -type f -n
 ## How many unique fasta IDs.
 fastaID=0
 for file in $(find $directory -type f -name "*.fa" -o -name "*.fasta"); do
-fastaID=$(($fastaID+$(awk -F' ' '/>/{print $1}' $file | sort | uniq | wc -l))2>fastacan.err) # We redirect this error to a file because we want a clean output, most of times will be because a file is not readable, we'll let the user know later.
+fastaID=$(($fastaID+$(awk -F' ' '/>/{print $1}' $file | sort | uniq | wc -l)))
 done
 
 echo There are $fastaID unique fasta IDs.
@@ -32,24 +32,24 @@ echo There are $fastaID unique fasta IDs.
 for f in $(find $directory -type f -name "*.fa" -o -name "*.fasta"); do
 
 ##### We'll let the user know if a file is not readable, just in case.
-if [[ ! -r $f ]]; then echo === $(basename $f) not readable file! && continue; fi #We used basename command in PGB that's why I know it!
-
+if [[ ! -r $f ]]; then echo === $f not readable file! && continue; fi
 
 #### Creation of the header
 header="==="
 
 #### filename
-header=$header" "$(basename $f)
+header=$header" "$f
+# EL PATHWAY!¡
 
 #### is it a symlink? 
 if [[ -h $f ]]; then header=$header" ""symlink"; fi
 
 #### sequences: by counting how many fasta headers there are.
-header=$header" "$(grep -c ">" < $f)"seqs"
+header=$header" Sequences:"$(grep -c ">" < $f)
 
 #### sequence length without gaps
 n=0
-header=$header" "$(awk '!/>/{gsub(/-/, "", $0); n=n+length($0)}END{print n}' $f)
+header=$header" Length:"$(awk '!/>/{gsub(/-/, "", $0);n=n+length($0)}END{print n}' $f)
 
 
 #### amino acid sequence or nucleotide sequence? If the sequence hast any character that is not a nucleotide (A, C, T, G) then it will be determined as an aminoacidic sequence.
