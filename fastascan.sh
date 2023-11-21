@@ -19,8 +19,7 @@ fastaID=0 # Define the counter of the IDs.
 
 ### Iterate in each file:
 for file in $(find $directory -type f,l -name "*.fa" -o -type f,l -name "*.fasta"); do
-
-### Iterate in each line of the file: Take the ones with the ID (first word) and count each unique ID.
+### Iterate in each line of the file: Take the ones with the ID (first word) and count each unique ID:
 fastaID=$(($fastaID+$(awk -F' ' '/>/{print $1}' $file | sort | uniq | wc -l)))
 done
 
@@ -53,8 +52,8 @@ header=$header" | Length: "$(awk '!/>/{gsub(/-/, "", $0);n=n+length($0)}END{prin
 # gsub will replace the gaps with nothing in each line except the header lines.
 # The counter (n) will sum each line's length and at the end of the iteration of the lines it will print the total.
 
-#### amino acid sequence or nucleotide sequence? If the sequence hast any character that is not a nucleotide (A, C, T, G) then it will be determined as an aminoacidic sequence.
-if [[ $(awk '!/>/{gsub(/-/, "", $0); print $0}' $f | grep -vi ^[A,C,T,G]) ]]; then header=$header" | Aminoacid Sequence"; else header=$header" | Nucleotide Sequence"; fi
+#### amino acid sequence or nucleotide sequence? If the sequence hast any character that is not a nucleotide (A, C, T, G, U – in case it's RNA –, N – indetermination) then it will be determined as an aminoacidic sequence.
+if [[ $(awk '!/>/{gsub(/-/, "", $0); print $0}' $f | grep -i [^ACTGUN]) ]]; then header=$header" | Aminoacid Sequence"; else header=$header" | Nucleotide Sequence"; fi
 
 
 #### Echo the header before the content.
