@@ -15,15 +15,8 @@ elif [[ $(find $directory -type f,l -name "*.fa" -o -type f,l -name "*.fasta" | 
 else echo The directory has $(find $directory -type f,l -name "*.fa" -o -type f,l -name "*.fasta" | wc -l) fasta files.; fi
 
 ## How many unique fasta IDs.
-fastaID=0 # Define the counter of the IDs.
-
-### Iterate in each file:
-for file in $(find $directory -type f,l -name "*.fa" -o -type f,l -name "*.fasta"); do
-### Iterate in each line of the file: Take the ones with the ID (first word) and count each unique ID:
-fastaID=$(($fastaID+$(awk -F' ' '/>/{print $1}' $file | sort | uniq | wc -l)))
-done
-
-echo There are $fastaID unique fasta IDs.
+### Iterate in each file and each line of the file: Take the field with the ID (first word) and count each unique ID:
+echo There are $(awk -F' ' '/>/{print $1}' $(find $directory -type f,l -name "*.fa" -o -type f,l -name "*.fasta") | sort | uniq | wc -l) unique fasta IDs.
 
 ## Files:
 ### Header: filename, symlink?, sequences, total seq length (no gaps), extra: aa/nt seq.
